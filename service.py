@@ -4,10 +4,79 @@ import torch
 # AutoModelForSequenceClassification: 문장 분류용 Transformer 모델을 불러옴
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
+# 한 단어만 들어올 때 정상단어인데 욕설 처리되는 단어들 예외처리
+ALLOW_EXACT_WORDS = {
+    # 사발 계열
+    '사발',
+    '사발면',
+    '물사발',
+    '밥사발',
+    '국사발',
+    '대접사발',
+    '사발통문',
+
+    # 시발 계열 정상 단어
+    '시발점',
+    '시발역',
+    '시발지',
+    '시발차',
+
+    # 씨- 계열 정상 단어
+    '씨앗',
+    '씨알',
+    '씨눈',
+
+    # 병- 계열 정상 단어
+    '병식',
+    '병아리',
+    '병어',
+    '병풍',
+    '병충해',
+    '병정',
+
+    # 지- 계열 정상 단어
+    '지라',
+    '지리',
+
+    # 개- 계열 정상 단어
+    '개나리',
+    '개념',
+    '개구쟁이',
+    '개불',
+    '개살구',
+    '개암',
+    '개망초',
+    '개복치',
+    '개비',
+
+    # 일반 정상 단어
+    '만년',
+    '닭살',
+    '닭장',
+    '망태기',
+    '멍울',
+    '변기',
+    '변소',
+    '새끼줄',
+    '십오',
+    '십육',
+    '시바견',
+    '자지러지다',
+    '자지러짐',
+    '젖병',
+    '젖니',
+    '젖먹이',
+    '젖산',
+    '젓갈',
+    '조개',
+    '토막',
+    '항문',
+}
+
 class ProfanityService:
     def __init__(self):
         self.model_path = Path(__file__).parent / 'kcelectra-profanity-model'
-        self.threshold = 0.7 # 욕설 판단 기준
+        self.threshold = 0.8 # 욕설 판단 기준
         self.tokenizer = None # 토크나이저
         self.model = None # 사용할 모델
 
@@ -64,6 +133,16 @@ class ProfanityService:
 
         # 결과에 대한 판정 0.7 이상이면 is_profanity True
         for text, probability in zip(texts, probabilities):
+
+            # 욕설로 잡히는 한글자 정상 단어 예외 단어장에 걸릴 경우
+            if text in ALLOW_EXACT_WORDS:
+                results.append({
+                    'text': text,
+                    'isProfanity': False,
+                    'score': 0.0
+                })
+                continue
+            
             profanity_score = float(probability[1])
             is_profanity = profanity_score >= self.threshold
 
