@@ -1,2 +1,6 @@
 /data
 /kcelectra-profanity-model
+
+__pycache__/
+*.py[cod]
+*$py.class
