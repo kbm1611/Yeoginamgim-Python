@@ -1,3 +1,4 @@
+import os
 from pathlib import Path # 폴더 경로를 가져오는 import
 import torch
 # AutoTokenizer: 문장을 모델이 이해할 수 있는 숫자 토큰으로 바꿈
@@ -75,10 +76,14 @@ ALLOW_EXACT_WORDS = {
 
 class ProfanityService:
     def __init__(self):
-        self.model_path = Path(__file__).parent / 'kcelectra-profanity-model'
-        self.threshold = 0.8 # 욕설 판단 기준
+        default_model_path = Path(__file__).parent / 'kcelectra-profanity-model'
+        self.model_path = Path(os.getenv('PROFANITY_MODEL_PATH', default_model_path)).expanduser()
+        self.threshold = float(os.getenv('PROFANITY_THRESHOLD', '0.8')) # 욕설 판단 기준
         self.tokenizer = None # 토크나이저
         self.model = None # 사용할 모델
+
+    def isModelLoaded(self):
+        return self.model is not None and self.tokenizer is not None
 
     # 모델 로딩하는 함수
     def loadModel(self):
