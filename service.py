@@ -1,6 +1,7 @@
 import os
 from pathlib import Path # 폴더 경로를 가져오는 import
 import torch
+from model_storage import ensure_model_available
 # AutoTokenizer: 문장을 모델이 이해할 수 있는 숫자 토큰으로 바꿈
 # AutoModelForSequenceClassification: 문장 분류용 Transformer 모델을 불러옴
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
@@ -90,6 +91,8 @@ class ProfanityService:
         # 모델 로딩이 이루어져 이미 채워져 있다면 반환
         if self.model is not None and self.tokenizer is not None:
             return
+
+        ensure_model_available(self.model_path)
 
         # 저장된 모델의 토크나이저 불러오기( tokenizer )
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_path, use_fast=True)
