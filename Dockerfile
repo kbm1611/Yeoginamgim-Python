@@ -5,8 +5,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app.py controller.py service.py ./
-COPY kcelectra-profanity-model ./kcelectra-profanity-model
+COPY app.py controller.py service.py model_storage.py ./
 
 EXPOSE 8000
 
