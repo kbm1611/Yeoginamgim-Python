@@ -22,7 +22,15 @@ uvicorn app:app --host 127.0.0.1 --port 8001 --reload
 ```
 
 백엔드는 `PROFANITY_FILTER_BASE_URL`과 `profanity.filter.check-path`를 조합해 FastAPI를 호출합니다.
-로컬에서 Spring Backend와 함께 사용할 때는 백엔드 실행 환경에 `PROFANITY_FILTER_BASE_URL=http://127.0.0.1:8001`을 설정하세요.
+Spring Backend의 `local` profile은 로컬 작성 흐름이 막히지 않도록 `PROFANITY_FILTER_ENABLED=false`를 기본값으로 사용합니다.
+로컬에서 필터까지 함께 테스트할 때는 FastAPI를 먼저 띄운 뒤 Spring Backend 실행 환경에 다음 값을 설정하세요.
+
+```powershell
+$env:PROFANITY_FILTER_ENABLED="true"
+$env:PROFANITY_FILTER_BASE_URL="http://127.0.0.1:8001"
+$env:PROFANITY_FILTER_FAIL_OPEN="false"
+```
+
 `profanity.filter.check-path`의 기본값은 `/api/profanity`입니다.
 
 ## 운영 실행 예시
@@ -45,7 +53,7 @@ PROFANITY_FILTER_FAIL_OPEN=false
 ```
 
 운영 기본 정책은 fail-closed입니다. `PROFANITY_FILTER_FAIL_OPEN=false`이면 필터 서버 장애, timeout, 비정상 응답 시 흔적 생성/수정을 막습니다. 로컬 개발에서만 필요하면 `PROFANITY_FILTER_FAIL_OPEN=true`로 임시 우회할 수 있습니다.
-`PROFANITY_FILTER_ENABLED` 기본값은 `true`이고, `PROFANITY_FILTER_BASE_URL` 기본값은 비어 있습니다. 따라서 필터를 켠 상태로 텍스트 흔적을 생성/수정하려면 Spring Backend에 `PROFANITY_FILTER_BASE_URL`을 반드시 설정해야 합니다.
+기본 `application.properties`의 `PROFANITY_FILTER_ENABLED` 기본값은 `true`이고, `PROFANITY_FILTER_BASE_URL` 기본값은 비어 있습니다. 따라서 운영처럼 필터를 켠 상태로 텍스트 흔적을 생성/수정하려면 Spring Backend에 `PROFANITY_FILTER_BASE_URL`을 반드시 설정해야 합니다. `application-local.properties`는 로컬 편의를 위해서만 기본값을 덮어씁니다.
 
 ## Python 환경변수
 
