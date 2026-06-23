@@ -66,3 +66,4 @@ ALLOW_EXACT_WORDS = {
     # '토막',
     # '항문',
 }
+ALLOW_EXACT_WORDS = set(ALLOW_EXACT_WORDS)
