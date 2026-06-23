@@ -1,79 +1,12 @@
 import os
 from pathlib import Path # 폴더 경로를 가져오는 import
 import torch
+from allow_words import ALLOW_EXACT_WORDS
+from block_words import BLOCK_EXACT_WORDS
 from model_storage import ensure_model_available
 # AutoTokenizer: 문장을 모델이 이해할 수 있는 숫자 토큰으로 바꿈
 # AutoModelForSequenceClassification: 문장 분류용 Transformer 모델을 불러옴
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
-
-# 한 단어만 들어올 때 정상단어인데 욕설 처리되는 단어들 예외처리
-ALLOW_EXACT_WORDS = {
-    # 사발 계열
-    '사발',
-    '사발면',
-    '물사발',
-    '밥사발',
-    '국사발',
-    '대접사발',
-    '사발통문',
-
-    # 시발 계열 정상 단어
-    '시발점',
-    '시발역',
-    '시발지',
-    '시발차',
-
-    # 씨- 계열 정상 단어
-    '씨앗',
-    '씨알',
-    '씨눈',
-
-    # 병- 계열 정상 단어
-    '병식',
-    '병아리',
-    '병어',
-    '병풍',
-    '병충해',
-    '병정',
-
-    # 지- 계열 정상 단어
-    '지라',
-    '지리',
-
-    # 개- 계열 정상 단어
-    '개나리',
-    '개념',
-    '개구쟁이',
-    '개불',
-    '개살구',
-    '개암',
-    '개망초',
-    '개복치',
-    '개비',
-
-    # 일반 정상 단어
-    '만년',
-    '닭살',
-    '닭장',
-    '망태기',
-    '멍울',
-    '변기',
-    '변소',
-    '새끼줄',
-    '십오',
-    '십육',
-    '시바견',
-    '자지러지다',
-    '자지러짐',
-    '젖병',
-    '젖니',
-    '젖먹이',
-    '젖산',
-    '젓갈',
-    '조개',
-    '토막',
-    '항문',
-}
 
 class ProfanityService:
     def __init__(self):
@@ -141,6 +74,15 @@ class ProfanityService:
 
         # 결과에 대한 판정 0.7 이상이면 is_profanity True
         for text, probability in zip(texts, probabilities):
+
+            # 모델 점수와 무관하게 정확히 일치하면 차단할 단어
+            if text in BLOCK_EXACT_WORDS:
+                results.append({
+                    'text': text,
+                    'isProfanity': True,
+                    'score': 1.0
+                })
+                continue
 
             # 욕설로 잡히는 한글자 정상 단어 예외 단어장에 걸릴 경우
             if text in ALLOW_EXACT_WORDS:
