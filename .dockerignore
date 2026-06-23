@@ -3,6 +3,16 @@
 .gitignore
 __pycache__/
 *.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 data/
+tests/
+images/
+kcelectra-profanity-model/
 .env
+*.log
+*.zip
 .DS_Store
